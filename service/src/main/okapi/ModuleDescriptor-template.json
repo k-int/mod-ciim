@@ -1,0 +1,43 @@
+{
+  "id": "${info.app.name}-${info.app.version}",
+  "name": "${info.app.name}",
+  "provides": [
+    {
+      "id": "ciim",
+      "version": "${info.app.minorVersion}",
+      "handlers" : [
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/ciim",
+          "permissionsRequired" : [ "ciim.entry.collection.get" ]
+        }
+      ]
+    },
+    {
+      "id": "_tenant",
+      "version": "1.2",
+      "interfaceType" : "system",
+      "handlers": [
+        {
+          "permissionsRequired" : [],
+          "methods": ["POST", "DELETE"],
+          "pathPattern": "/_/tenant"
+        }, {
+         "permissionsRequired" : [],
+         "methods" : [ "POST" ],
+         "pathPattern" : "/_/tenant/disable"
+        }
+
+      ]
+    }
+  ],
+  "permissionSets": [
+  ],
+  "launchDescriptor": {
+    "dockerImage": "${info.app.name}:${info.app.version}",
+    "dockerArgs": {
+      "HostConfig": { "PortBindings": { "8080/tcp":  [{ "HostPort": "%p" }] } }
+    },
+    "dockerPull" : false
+  }
+}

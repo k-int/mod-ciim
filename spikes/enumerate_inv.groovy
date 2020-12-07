@@ -40,13 +40,13 @@ password=null;
 tenant=null;
 jwt=null;
 folio_api = null;
+session_ctx=[:]
 
 this.configure('cardinal_si');
 this.login();
+this.enumerateInventory();
 
 System.exit(0);
-
-
 
 public void configure(String cfgname) {
   this.cfgname = cfgname;
@@ -59,7 +59,7 @@ public void configure(String cfgname) {
 
 public HttpBuilder getClient() {
   if ( this.folio_api == null ) {
-    println("Intialize httpbuilder");
+    println("Intialize httpbuilder :: ${this.url}");
     this.folio_api = configure {
       request.uri = this.url
     }
@@ -72,11 +72,11 @@ public HttpBuilder getClient() {
 def login() {
 
   def postBody = [username: this.username, password: this.password]
-  def client = this.getClient()
+  def fc = this.getClient()
 
-  if ( client != null ) {
+  if ( fc != null ) {
     println("attempt login ${postBody}");
-    this.getClient().post {
+    fc.post {
       request.uri.path= '/bl-users/login'
       request.uri.query=[expandPermissions:true,fullPermissions:true]
       request.headers.'X-Okapi-Tenant'=this.tenant;
@@ -88,8 +88,17 @@ def login() {
         println("Problem ${body} ${fs} ${fs.getStatusCode()}");
       }
       response.success { FromServer fs, Object body ->
-        // println("OK ${body} ${fs} ${fs.getStatusCode()}");
-        session_ctx.auth = body.access_token
+        println("OK ${body} ${fs} ${fs.getStatusCode()}");
+        println("Logged In")
+        def tok_header = fs.headers?.find { h-> h.key == 'x-okapi-token' }
+        if ( tok_header ) {
+          // result = tok_header.value;
+          session_ctx.auth = tok_header.value
+        }
+        else {
+          println("Unable to locate okapi token header amongst ${r1?.headers}");
+        }
+
       }
     }
   }
@@ -98,3 +107,23 @@ def login() {
   }
 }
 
+def enumerateInventory() {
+
+  def fc = this.getClient()
+
+  fc.get {
+    request.uri.path='/instance-storage/instances'
+    request.headers.'X-Okapi-Tenant'=this.tenant;
+    request.headers.'X-Okapi-Token'=this.session_ctx.auth
+    request.headers.'accept'='application/json'
+    request.uri.query= [
+      'metadata.updatedDate':'0001-01-01T00:00:00.000'
+    ]
+    response.failure { FromServer fs, Object body ->
+      println("Problem ${body} ${fs} ${fs.getStatusCode()}");
+    }
+    response.success { FromServer fs, Object body ->
+      println("OK ${body} ${fs} ${fs.getStatusCode()}");
+    }
+  }
+}

@@ -6,5 +6,6 @@ class UrlMappings {
     "/"(controller: 'application', action:'index');
 
     "/ciim/settings/appSettings" (resources: 'setting');
+    "/ciim/wibble" (controller: 'setting', action: 'wibble');
   }
 }

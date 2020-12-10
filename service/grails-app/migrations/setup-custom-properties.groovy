@@ -187,10 +187,6 @@ databaseChangeLog = {
         addForeignKeyConstraint(baseColumnNames: "parent_id", baseTableName: "custom_property", constraintName: "FKd5u2tgpracxvk1xw8pdreuj5h", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "id", referencedTableName: "custom_property_container")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-025") {
-        addForeignKeyConstraint(baseColumnNames: "custom_properties_id", baseTableName: "license", constraintName: "FKkf3sdhtua5h6x9l6aw5mmv6xm", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "id", referencedTableName: "custom_property_container")
-    }
-
   changeSet(author: "efreestone (manual)", id: "202012101341-1") {
     addColumn(tableName: "custom_property_definition") {
       column (name: "pd_label", type: "VARCHAR(255)") 

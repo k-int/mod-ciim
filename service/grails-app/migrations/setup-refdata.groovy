@@ -65,11 +65,4 @@ databaseChangeLog = {
     }
     addNotNullConstraint (tableName: "refdata_category", columnName: "internal", defaultNullValue: false)
   }
-  
-  changeSet(author: "efreestone (manual)", id: "202012101256-008") {
-    addColumn(tableName: "refdata_category") {
-      column(name: "internal", type: "boolean")
-    }
-    addNotNullConstraint (tableName: "refdata_category", columnName: "internal", defaultNullValue: false)
-  }
 }

@@ -32,6 +32,11 @@
     }
   ],
   "permissionSets": [
+    {
+      "permissionName": "ciim.entry.collection.get",
+      "displayName": "Ciim entry collection get",
+      "description": "Get collection of ciim entries"
+    }
   ],
   "launchDescriptor": {
     "dockerImage": "${info.app.name}:${info.app.version}",

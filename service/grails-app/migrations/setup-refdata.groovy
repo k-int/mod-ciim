@@ -58,4 +58,18 @@ databaseChangeLog = {
   changeSet(author: "efreestone (manual)", id: "202012101256-006") {
     addForeignKeyConstraint(baseColumnNames: "rdv_owner", baseTableName: "refdata_value", constraintName: "FKh4fon2a7k4y8b2sicjm0i6oy8", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "rdc_id", referencedTableName: "refdata_category")
   }
+
+  changeSet(author: "efreestone (manual)", id: "202012101256-007") {
+    addColumn(tableName: "refdata_category") {
+      column(name: "internal", type: "boolean")
+    }
+    addNotNullConstraint (tableName: "refdata_category", columnName: "internal", defaultNullValue: false)
+  }
+  
+  changeSet(author: "efreestone (manual)", id: "202012101256-008") {
+    addColumn(tableName: "refdata_category") {
+      column(name: "internal", type: "boolean")
+    }
+    addNotNullConstraint (tableName: "refdata_category", columnName: "internal", defaultNullValue: false)
+  }
 }

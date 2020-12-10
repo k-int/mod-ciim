@@ -8,7 +8,7 @@
       "handlers" : [
         {
           "methods": [ "GET" ],
-          "pathPattern": "/ciim",
+          "pathPattern": "/ciim/entries",
           "permissionsRequired" : [ "ciim.entry.collection.get" ]
         },
         {

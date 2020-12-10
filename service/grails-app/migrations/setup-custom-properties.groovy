@@ -165,29 +165,29 @@ databaseChangeLog = {
         addPrimaryKey(columnNames: "id", constraintName: "custom_property_textPK", tableName: "custom_property_text")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-019") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-020") {
         createIndex(indexName: "td_type_idx", tableName: "custom_property_definition") {
             column(name: "pd_type")
         }
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-020") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-021") {
         addForeignKeyConstraint(baseColumnNames: "definition_id", baseTableName: "custom_property", constraintName: "FK36grvth72fb7wu5i5xaeqjitw", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "pd_id", referencedTableName: "custom_property_definition")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-021") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-022") {
         addForeignKeyConstraint(baseColumnNames: "value_id", baseTableName: "custom_property_refdata", constraintName: "FK5ogn0fedwxxy4fhmq9du4qej2", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "rdv_id", referencedTableName: "refdata_value")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-022") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-023") {
         addForeignKeyConstraint(baseColumnNames: "category_id", baseTableName: "custom_property_refdata_definition", constraintName: "FKbrh88caagajlvrpaydg4tr3qx", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "rdc_id", referencedTableName: "refdata_category")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-023") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-024") {
         addForeignKeyConstraint(baseColumnNames: "parent_id", baseTableName: "custom_property", constraintName: "FKd5u2tgpracxvk1xw8pdreuj5h", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "id", referencedTableName: "custom_property_container")
     }
 
-    changeSet(author: "efreestone (manual)", id: "202012101335-024") {
+    changeSet(author: "efreestone (manual)", id: "202012101335-025") {
         addForeignKeyConstraint(baseColumnNames: "custom_properties_id", baseTableName: "license", constraintName: "FKkf3sdhtua5h6x9l6aw5mmv6xm", deferrable: "false", initiallyDeferred: "false", referencedColumnNames: "id", referencedTableName: "custom_property_container")
     }
 

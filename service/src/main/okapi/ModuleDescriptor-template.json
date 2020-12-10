@@ -10,6 +10,26 @@
           "methods": [ "GET" ],
           "pathPattern": "/ciim",
           "permissionsRequired" : [ "ciim.entry.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.get" ]
+        },
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.post" ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.put" ]
+        },
+        {
+          "methods": [ "DELETE" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.delete" ]
         }
       ]
     },
@@ -36,6 +56,50 @@
       "permissionName": "ciim.entry.collection.get",
       "displayName": "Ciim entry collection get",
       "description": "Get collection of ciim entries"
+    },
+    {
+      "permissionName": "ciim.settings.get",
+      "displayName": "settings get",
+      "description": "get settings",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.settings.post",
+      "displayName": "settings post",
+      "description": "post settings",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.settings.put",
+      "displayName": "settings put",
+      "description": "put settings",
+      "visible": false
+    }, {
+      "permissionName": "ciim.settings.delete",
+      "displayName": "settings delete",
+      "description": "delete settings",
+      "visible": false
+    },
+    {
+      "permissionName": "ciim.settings.read",
+      "displayName": "settings read",
+      "description": "read settings",
+      "visible": false,
+      "subPermissions": [
+          "ciim.settings.get"
+      ]
+    },
+    {
+      "permissionName": "ciim.settings.write",
+      "displayName": "settings write",
+      "description": "write settings",
+      "visible": false,
+      "subPermissions": [
+          "ciim.settings.read",
+          "ciim.settings.post",
+          "ciim.settings.put",
+          "ciim.settings.delete"
+      ]
     }
   ],
   "launchDescriptor": {

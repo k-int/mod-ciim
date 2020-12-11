@@ -6,6 +6,12 @@ class UrlMappings {
     "/"(controller: 'application', action:'index');
 
     "/ciim/settings/appSettings" (resources: 'setting');
-    "/ciim/wibble" (controller: 'setting', action: 'wibble');
+
+    // Call /ciim/refdata to list all refdata categories
+    '/ciim/refdata'(resources: 'refdata') {
+      collection {
+        "/$domain/$property" (controller: 'refdata', action: 'lookup')
+      }
+    }
   }
 }

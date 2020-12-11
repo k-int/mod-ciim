@@ -30,6 +30,26 @@
           "methods": [ "DELETE" ],
           "pathPattern": "/ciim/settings*",
           "permissionsRequired": [ "ciim.settings.delete" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.get" ]
+        },
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.post" ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.put" ]
+        },
+        {
+          "methods": [ "DELETE" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.delete" ]
         }
       ]
     },
@@ -99,6 +119,50 @@
           "ciim.settings.post",
           "ciim.settings.put",
           "ciim.settings.delete"
+      ]
+    },
+    {
+      "permissionName": "ciim.refdata.get",
+      "displayName": "refdata get",
+      "description": "get refdata",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.refdata.post",
+      "displayName": "refdata post",
+      "description": "post refdata",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.refdata.put",
+      "displayName": "refdata put",
+      "description": "put refdata",
+      "visible": false
+    }, {
+      "permissionName": "ciim.refdata.delete",
+      "displayName": "refdata delete",
+      "description": "delete refdata",
+      "visible": false
+    },
+    {
+      "permissionName": "ciim.refdata.read",
+      "displayName": "refdata read",
+      "description": "read refdata",
+      "visible": false,
+      "subPermissions": [
+          "ciim.refdata.get"
+      ]
+    },
+    {
+      "permissionName": "ciim.refdata.write",
+      "displayName": "refdata write",
+      "description": "write refdata",
+      "visible": false,
+      "subPermissions": [
+          "ciim.refdata.read",
+          "ciim.refdata.post",
+          "ciim.refdata.put",
+          "ciim.refdata.delete"
       ]
     }
   ],

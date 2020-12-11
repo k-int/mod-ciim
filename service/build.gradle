@@ -95,12 +95,7 @@ dependencies {
   // runtime "com.h2database:h2"
   runtime "javax.xml.bind:jaxb-api:2.3.1"
 
-  // non-graphql dependency
-  compile 'org.olf.reshare.dm.directory:dm-directory:2.0.0'
-
   profile "org.grails.profiles:rest-api"
-  
-  
   runtime "com.zaxxer:HikariCP:3.2.0"
   
 

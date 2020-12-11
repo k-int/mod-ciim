@@ -1,4 +1,4 @@
-package org.olf
+package com.k_int.folio.services.ciim
 
 import grails.rest.*
 import grails.converters.*

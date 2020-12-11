@@ -1,4 +1,4 @@
-package org.olf
+package com.k_int.folio.services.ciim
 
 class UrlMappings {
 

@@ -1,4 +1,4 @@
-package org.olf
+package com.k_int.folio.services.ciim
 
 import grails.core.GrailsApplication
 import grails.plugins.*
@@ -9,6 +9,8 @@ class ApplicationController implements PluginManagerAware {
     GrailsPluginManager pluginManager
 
     def index() {
-        [grailsApplication: grailsApplication, pluginManager: pluginManager]
+      println("ApplicationController::index()");
+
+      [grailsApplication: grailsApplication, pluginManager: pluginManager]
     }
 }

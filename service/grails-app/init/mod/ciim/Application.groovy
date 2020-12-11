@@ -1,4 +1,4 @@
-package mod.directory
+package mod.ciim
 
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration

@@ -8,8 +8,48 @@
       "handlers" : [
         {
           "methods": [ "GET" ],
-          "pathPattern": "/ciim",
+          "pathPattern": "/ciim/entries",
           "permissionsRequired" : [ "ciim.entry.collection.get" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.get" ]
+        },
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.post" ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.put" ]
+        },
+        {
+          "methods": [ "DELETE" ],
+          "pathPattern": "/ciim/settings*",
+          "permissionsRequired": [ "ciim.settings.delete" ]
+        },
+        {
+          "methods": [ "GET" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.get" ]
+        },
+        {
+          "methods": [ "POST" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.post" ]
+        },
+        {
+          "methods": [ "PUT" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.put" ]
+        },
+        {
+          "methods": [ "DELETE" ],
+          "pathPattern": "/ciim/refdata*",
+          "permissionsRequired": [ "ciim.refdata.delete" ]
         }
       ]
     },
@@ -32,11 +72,104 @@
     }
   ],
   "permissionSets": [
+    {
+      "permissionName": "ciim.entry.collection.get",
+      "displayName": "Ciim entry collection get",
+      "description": "Get collection of ciim entries"
+    },
+    {
+      "permissionName": "ciim.settings.get",
+      "displayName": "settings get",
+      "description": "get settings",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.settings.post",
+      "displayName": "settings post",
+      "description": "post settings",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.settings.put",
+      "displayName": "settings put",
+      "description": "put settings",
+      "visible": false
+    }, {
+      "permissionName": "ciim.settings.delete",
+      "displayName": "settings delete",
+      "description": "delete settings",
+      "visible": false
+    },
+    {
+      "permissionName": "ciim.settings.read",
+      "displayName": "settings read",
+      "description": "read settings",
+      "visible": false,
+      "subPermissions": [
+          "ciim.settings.get"
+      ]
+    },
+    {
+      "permissionName": "ciim.settings.write",
+      "displayName": "settings write",
+      "description": "write settings",
+      "visible": false,
+      "subPermissions": [
+          "ciim.settings.read",
+          "ciim.settings.post",
+          "ciim.settings.put",
+          "ciim.settings.delete"
+      ]
+    },
+    {
+      "permissionName": "ciim.refdata.get",
+      "displayName": "refdata get",
+      "description": "get refdata",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.refdata.post",
+      "displayName": "refdata post",
+      "description": "post refdata",
+      "visible": false
+    }, 
+    {
+      "permissionName": "ciim.refdata.put",
+      "displayName": "refdata put",
+      "description": "put refdata",
+      "visible": false
+    }, {
+      "permissionName": "ciim.refdata.delete",
+      "displayName": "refdata delete",
+      "description": "delete refdata",
+      "visible": false
+    },
+    {
+      "permissionName": "ciim.refdata.read",
+      "displayName": "refdata read",
+      "description": "read refdata",
+      "visible": false,
+      "subPermissions": [
+          "ciim.refdata.get"
+      ]
+    },
+    {
+      "permissionName": "ciim.refdata.write",
+      "displayName": "refdata write",
+      "description": "write refdata",
+      "visible": false,
+      "subPermissions": [
+          "ciim.refdata.read",
+          "ciim.refdata.post",
+          "ciim.refdata.put",
+          "ciim.refdata.delete"
+      ]
+    }
   ],
   "launchDescriptor": {
     "dockerImage": "${info.app.name}:${info.app.version}",
     "dockerArgs": {
-      "HostConfig": { "PortBindings": { "8080/tcp":  [{ "HostPort": "%p" }] } }
+      "HostConfig": { "PortBindings": { "8079/tcp":  [{ "HostPort": "%p" }] } }
     },
     "dockerPull" : false
   }

@@ -1,4 +1,4 @@
-package mod.directory
+package mod.ciim
 
 import com.k_int.okapi.OkapiTenantAdminService
 

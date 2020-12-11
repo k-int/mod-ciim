@@ -8,11 +8,6 @@
       "handlers" : [
         {
           "methods": [ "GET" ],
-          "pathPattern": "/ciim/*",
-          "permissionsRequired" : []
-        },
-        {
-          "methods": [ "GET" ],
           "pathPattern": "/ciim/entries",
           "permissionsRequired" : [ "ciim.entry.collection.get" ]
         },

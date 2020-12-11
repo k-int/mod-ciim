@@ -18,9 +18,4 @@ class SettingController extends OkapiTenantAwareController<AppSetting> {
     super(AppSetting)
   }
 
-  def wibble() {
-    log.debug "LOGDEBUG YOUT CALLED /CIIM/WIBBLE"
-    return [:]
-  }
-  
 }

@@ -2,7 +2,6 @@ import grails.gorm.multitenancy.Tenants
 import grails.events.annotation.Subscriber
 import grails.gorm.multitenancy.WithoutTenant
 import grails.gorm.transactions.Transactional
-import org.olf.okapi.modules.directory.Service
 import com.k_int.web.toolkit.refdata.RefdataValue
 import com.k_int.web.toolkit.refdata.RefdataCategory
 import com.k_int.web.toolkit.custprops.types.CustomPropertyRefdataDefinition

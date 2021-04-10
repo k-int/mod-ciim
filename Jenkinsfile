@@ -108,7 +108,7 @@ podTemplate(
         kubernetesDeploy(
           enableConfigSubstitution: true,
           kubeconfigId: 'local_k8s',
-          configs: 'other-scripts/k8s_deployment_template.yaml'
+          configs: 'scripts/k8s_deployment_template.yaml'
         );
         println("Wait for module to start...")
         sh(script: "curl -s --retry-connrefused --retry 15 --retry-delay 10 http://${env.MOD_RS_DEPLOY_AS}.reshare:8080/actuator/health", returnStdout: true)

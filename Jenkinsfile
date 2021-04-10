@@ -60,7 +60,7 @@ podTemplate(
     stage('Publish Docker Image') {
       container('docker') {
         dir('docker') {
-          if ( checkout_details?.GIT_BRANCH == 'origin/master' ) {
+          if ( checkout_details?.GIT_BRANCH == 'origin/main' ) {
 
             println("Considering build tag : ${constructed_tag} version:${props.appVersion} is_snapshot:${is_snapshot}");
 
@@ -96,14 +96,14 @@ podTemplate(
             }
           }
           else {
-            println("Not publishing docker image for branch ${checkout_details?.GIT_BRANCH}. Please merge to master for a docker image build");
+            println("Not publishing docker image for branch ${checkout_details?.GIT_BRANCH}. Please merge to main for a docker image build");
           }
         }
       }
     }
 
     stage ('deploy') {
-      if ( checkout_details?.GIT_BRANCH == 'origin/master' ) {
+      if ( checkout_details?.GIT_BRANCH == 'origin/main' ) {
         println("Attempt deployment : ${env.MOD_RS_IMAGE} as ${env.MOD_RS_DEPLOY_AS}");
         kubernetesDeploy(
           enableConfigSubstitution: true,
@@ -117,7 +117,7 @@ podTemplate(
     }
 
     stage('Publish module descriptor') {
-      if ( checkout_details?.GIT_BRANCH == 'origin/master' ) {
+      if ( checkout_details?.GIT_BRANCH == 'origin/main' ) {
         sh 'ls -la service/build/resources/main/okapi'
         // this worked as expected
         // sh "curl http://okapi.reshare:9130/_/discovery/modules"

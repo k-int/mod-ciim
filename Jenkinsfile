@@ -6,7 +6,8 @@ Map args=[
   tenantsToUpdate:['kint1', 'kiuat1'],
   dockerImageName:'knowledgeintegration/mod-ciim',
   serviceName:'mod-ciim',
-  descriptorRegistries:['http://okapi.reshare:9130/_/proxy/modules'
+  descriptorRegistries:[
+    [ url:'http://okapi.reshare:9130/_/proxy/modules', credentials:'supertenant' ]
   ],
   deploymentTemplate:'scripts/k8s_deployment_template.yaml',
   targetNamespace:'reshare'

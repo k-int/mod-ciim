@@ -46,6 +46,7 @@ session_ctx=[
 ]
 
 this.configure('cardinal_si');
+// this.configure('palci_si');
 this.login();
 this.loadRefdata('IdentifierTypes');
 this.loadRefdata('Classns');
@@ -136,13 +137,16 @@ def getPageOfInventoryDataSince(String cursor) {
   def fc = this.getClient()
   Map result = [:]
 
+  println("Get page of data updatedDate > ${cursor}");
+
   fc.get {
     request.uri.path='/instance-storage/instances'
     request.headers.'X-Okapi-Tenant'=this.tenant;
     request.headers.'X-Okapi-Token'=this.session_ctx.auth
     request.headers.'accept'='application/json'
     request.uri.query= [
-      'query':'metadata.updatedDate>'+cursor
+      'query':'metadata.updatedDate>'+cursor+'a',  // We add 'a' onto the end because FOLIO CQL seems to do >= instead of >
+      'sortyby':'metadata.updatedDate'
     ]
     response.failure { FromServer fs, Object body ->
       println("Problem ${body} ${fs} ${fs.getStatusCode()}");
@@ -150,43 +154,52 @@ def getPageOfInventoryDataSince(String cursor) {
     response.success { FromServer fs, Object body ->
       // println("OK ${body} ${fs} ${fs.getStatusCode()}");
       println("Total records: ${body.totalRecords}");
+
       body.instances.each { inst ->
-        println("\n\nInstance:");
-        inst.each { k,v -> 
-          if ( v instanceof String ) {
-            println("  ${k} -> ${v}");
-          }
-          else if ( k == 'identifiers' ) {
-            println("  Identifiers");
-            inst.identifiers?.each { id ->
-              // Resolve identifierTypeId using previously looked up refdata
-              println("    [${this.session_ctx.refdata.IdentifierTypes[id.identifierTypeId]?.name}] ${id.value}");
-            }
-          }
-          else if ( k == 'contributors' ) {
-            println("  Contributors");
-            inst.contributors?.each { id ->
-              // Resolve identifierTypeId using previously looked up refdata
-              println("    [${this.session_ctx.refdata.ContributorNameTypes[id.contributorNameTypeId]?.name}] ${id.name}");
-            }
-          }
-          else if ( k == 'subjects' ) {
-            println("  Subjects");
-            inst.subjects?.each { subject ->
-              println("    ${subject}");
-            }
-          }
-          else {
-            println("  ${k} -> ${v}")
-          }
-        }
-        println("UpdatedDate: ${inst.metadata.updatedDate}");
+        dumpSummary(inst)
         result.maxCursor=inst.metadata.updatedDate;
       }
     }
   }
 
   return result;
+}
+
+void dumpSummary(inst) {
+  println("${inst.id} ${inst.metadata.updatedDate} ${inst.title}");
+}
+
+void dumpFullInstance(inst) {
+  println("\n\nInstance:");
+  inst.each { k,v ->
+    if ( v instanceof String ) {
+      println("  ${k} -> ${v}");
+    }
+    else if ( k == 'identifiers' ) {
+      println("  Identifiers");
+      inst.identifiers?.each { id ->
+        // Resolve identifierTypeId using previously looked up refdata
+        println("    [${this.session_ctx.refdata.IdentifierTypes[id.identifierTypeId]?.name}] ${id.value}");
+      }
+    }
+    else if ( k == 'contributors' ) {
+      println("  Contributors");
+      inst.contributors?.each { id ->
+        // Resolve identifierTypeId using previously looked up refdata
+        println("    [${this.session_ctx.refdata.ContributorNameTypes[id.contributorNameTypeId]?.name}] ${id.name}");
+      }
+    }
+    else if ( k == 'subjects' ) {
+      println("  Subjects");
+      inst.subjects?.each { subject ->
+        println("    ${subject}");
+      }
+    }
+    else {
+      println("  ${k} -> ${v}")
+    }
+  }
+  println("UpdatedDate: ${inst.metadata.updatedDate}");
 }
 
 

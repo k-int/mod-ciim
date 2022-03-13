@@ -118,26 +118,43 @@ def login() {
 
 def enumerateInventory() {
   String cursor = '0001-01-01T00:00:00.000'
+  Long offset = -1;
+  long records_processed = 1
   Map r = null;
   int c = 0;
   // Artificially restrict ourselves to 5 pages of data
-  while ( c++ < 5 ) {
-    println("Fetch page of data starting at ${cursor}");
-    r = getPageOfInventoryDataSince(cursor)
-    cursor = r.maxCursor;
+
+  File tsv_file = new File('./data.tsv');
+  if ( tsv_file.exists() ) {
+    tsv_file.renameTo('./data.tsv.bak');
+    tsv_file = new File('./data.tsv');
+  }
+  tsv_file << 'id	title	publisher	dateOfPublication	placeOfPublication	series\n'
+  while ( records_processed > 0 ) {
+    println("Fetch page of data starting at ${cursor}/${offset}");
+    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
+
+    // If mode is timestamp set this
+    // cursor = r.maxCursor;
+
+    offset = r.offset
+    records_processed = r.records_processed
 
     // Don't ddos 
-    Thread.sleep(5000);
+    Thread.sleep(3000);
   }
 
+  println("got ${records_processed} records");
 }
 
-def getPageOfInventoryDataSince(String cursor) {
+// Mode controls the pagination method - offset or the updatedDate field. updatedDate behaves... oddly.
+def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, String mode='offset') {
 
   def fc = this.getClient()
   Map result = [:]
+  result.records_processed = 0;
 
-  println("Get page of data updatedDate > ${cursor}");
+  println("Get page of data updatedDate > ${cursor}/${offset}");
 
   // Limit and Offset
   fc.get {
@@ -146,10 +163,20 @@ def getPageOfInventoryDataSince(String cursor) {
     request.headers.'X-Okapi-Token'=this.session_ctx.auth
     request.headers.'accept'='application/json'
     request.uri.query= [
-      'query':'metadata.updatedDate>'+cursor+'a',  // We add 'a' onto the end because FOLIO CQL seems to do >= instead of >
       'sortyby':'metadata.updatedDate',
-      'limit':100
+      'limit':10,
     ]
+
+    switch ( mode) {
+      case 'offset':
+        request.uri.query.offset = offset
+        request.uri.query.query='(metadata.updatedDate>'+cursor+')';
+        break;
+      case 'timestamp':
+        request.uri.query.query='(metadata.updatedDate>'+cursor+'a)';
+        break;
+    }
+
     response.failure { FromServer fs, Object body ->
       println("Problem ${body} ${fs} ${fs.getStatusCode()}");
     }
@@ -158,8 +185,11 @@ def getPageOfInventoryDataSince(String cursor) {
       println("Total records: ${body.totalRecords}");
 
       body.instances.each { inst ->
-        dumpSummary(inst)
+        dumpSummary(result.records_processed++, inst)
+        // println(toTSV(inst));
+        tsv_file << toTSV(inst)+'\n';
         result.maxCursor=inst.metadata.updatedDate;
+        result.offset = (offset++)
       }
     }
   }
@@ -167,8 +197,8 @@ def getPageOfInventoryDataSince(String cursor) {
   return result;
 }
 
-void dumpSummary(inst) {
-  println("${inst.id} ${inst.metadata.updatedDate} ${inst.title}");
+void dumpSummary(c, inst) {
+  println("${c} ${inst.id} ${inst.metadata.updatedDate} ${inst.title}");
 }
 
 void dumpFullInstance(inst) {
@@ -197,11 +227,35 @@ void dumpFullInstance(inst) {
         println("    ${subject}");
       }
     }
+    else if ( k == 'publication' ) {
+      println("  Subjects");
+      inst.publication?.each { pub ->
+        println("    ${pub.publisher} ${pub.dateOfPublication}");
+      }
+    }
     else {
       println("  ${k} -> ${v}")
     }
   }
   println("UpdatedDate: ${inst.metadata.updatedDate}");
+}
+
+String toTSV(inst) {
+  return toTSVData(inst).join('\t')
+}
+
+String[] toTSVData(inst) {
+
+  String[] result = [
+    inst.id,
+    inst.title,
+    inst.publication ? inst.publication[0].publisher : '',
+    inst.publication ? inst.publication[0].dateOfPublication : '',
+    inst.publication ? inst.publication[0].place : '',
+    inst.series ? inst.series[0] : ''
+  ]
+
+  return result;
 }
 
 

@@ -139,6 +139,7 @@ def getPageOfInventoryDataSince(String cursor) {
 
   println("Get page of data updatedDate > ${cursor}");
 
+  // Limit and Offset
   fc.get {
     request.uri.path='/instance-storage/instances'
     request.headers.'X-Okapi-Tenant'=this.tenant;
@@ -146,7 +147,8 @@ def getPageOfInventoryDataSince(String cursor) {
     request.headers.'accept'='application/json'
     request.uri.query= [
       'query':'metadata.updatedDate>'+cursor+'a',  // We add 'a' onto the end because FOLIO CQL seems to do >= instead of >
-      'sortyby':'metadata.updatedDate'
+      'sortyby':'metadata.updatedDate',
+      'limit':100
     ]
     response.failure { FromServer fs, Object body ->
       println("Problem ${body} ${fs} ${fs.getStatusCode()}");

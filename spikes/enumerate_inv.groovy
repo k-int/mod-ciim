@@ -139,7 +139,7 @@ def enumerateInventory() {
   while ( records_processed > 0 ) {
     println("Fetch page of data starting at ${cursor}/${offset}");
     // r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
-    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'cursor' )
+    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
 
     println("Process records");
     // If mode is timestamp set this
@@ -147,7 +147,7 @@ def enumerateInventory() {
       saveJson(record)
     }
 
-    cursor = r.maxCursor;
+    // cursor = r.maxCursor;
     offset = r.offset
     records_processed = r?.records?.size() ?: 0
 
@@ -197,7 +197,7 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
     request.headers.'accept'='application/json'
     request.uri.query= [
       'sortyby':'metadata.updatedDate',
-      'limit':100,
+      'limit':200,
     ]
 
     switch ( mode) {

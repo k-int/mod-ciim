@@ -22,6 +22,7 @@ import io.jsonwebtoken.Claims;
 import java.security.PublicKey
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
+import groovy.json.JsonOutput
 
 /**
  * This script depends upon a file ~/.folio/credentials set out as follows:
@@ -45,15 +46,19 @@ session_ctx=[
   refdata:[:]
 ]
 
-this.configure('cardinal_si');
-// this.configure('palci_si');
+// this.configure('cardinal_si');
+println("setup");
+this.configure('palci_si');
+println("login");
 this.login();
+println("refdata");
 this.loadRefdata('IdentifierTypes');
 this.loadRefdata('Classns');
 this.loadRefdata('ContributorNameTypes');
 this.loadRefdata('InstanceTypes');
+println("enumerate");
 this.enumerateInventory();
-
+println("exit");
 System.exit(0);
 
 public void configure(String cfgname) {
@@ -85,8 +90,9 @@ def login() {
   if ( fc != null ) {
     println("attempt login ${postBody}");
     fc.post {
-      request.uri.path= '/bl-users/login'
-      request.uri.query=[expandPermissions:true,fullPermissions:true]
+      // request.uri.path= '/bl-users/login'
+      request.uri.path= '/authn/login'
+      // request.uri.query=[expandPermissions:true,fullPermissions:true]
       request.headers.'X-Okapi-Tenant'=this.tenant;
       request.headers.'accept'='application/json'
       request.headers.'Content-Type'='application/json'
@@ -132,26 +138,53 @@ def enumerateInventory() {
   tsv_file << 'id	title	publisher	dateOfPublication	placeOfPublication	series\n'
   while ( records_processed > 0 ) {
     println("Fetch page of data starting at ${cursor}/${offset}");
-    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
+    // r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
+    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'cursor' )
 
+    println("Process records");
     // If mode is timestamp set this
-    // cursor = r.maxCursor;
+    r?.records?.each { record ->
+      saveJson(record)
+    }
 
+    cursor = r.maxCursor;
     offset = r.offset
-    records_processed = r.records_processed
+    records_processed = r?.records?.size() ?: 0
 
     // Don't ddos 
     Thread.sleep(3000);
+
+    println("maxCursor:${r.maxCursor}");
   }
 
   println("got ${records_processed} records");
 }
 
+def saveJson(record) {
+  String record_id = record.id
+  String record_bucket = "data/${record_id[0]}/${record_id[1]}/${record_id[2]}"
+  File record_bucket_dir = new File(record_bucket)
+
+  if ( ! record_bucket_dir.exists() )
+    record_bucket_dir.mkdirs();
+
+  File record_file = new File("${record_bucket}/${record_id}")
+
+  if ( record_file.exists() )
+    record_file.delete();
+
+  record_file << JsonOutput.toJson(record)
+}
+
 // Mode controls the pagination method - offset or the updatedDate field. updatedDate behaves... oddly.
 def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, String mode='offset') {
 
+  println("getPageOfInventoryDataSince(${cursor},...${offset},${mode}");
+
   def fc = this.getClient()
-  Map result = [:]
+  Map result = [
+    records:[]
+  ]
   result.records_processed = 0;
 
   println("Get page of data updatedDate > ${cursor}/${offset}");
@@ -164,7 +197,7 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
     request.headers.'accept'='application/json'
     request.uri.query= [
       'sortyby':'metadata.updatedDate',
-      'limit':10,
+      'limit':100,
     ]
 
     switch ( mode) {
@@ -180,14 +213,16 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
     response.failure { FromServer fs, Object body ->
       println("Problem ${body} ${fs} ${fs.getStatusCode()}");
     }
+
     response.success { FromServer fs, Object body ->
       // println("OK ${body} ${fs} ${fs.getStatusCode()}");
       println("Total records: ${body.totalRecords}");
 
       body.instances.each { inst ->
-        dumpSummary(result.records_processed++, inst)
+        result.records.add(inst);
+        // dumpSummary(result.records_processed++, inst)
         // println(toTSV(inst));
-        tsv_file << toTSV(inst)+'\n';
+        // tsv_file << toTSV(inst)+'\n';
         result.maxCursor=inst.metadata.updatedDate;
         result.offset = (offset++)
       }

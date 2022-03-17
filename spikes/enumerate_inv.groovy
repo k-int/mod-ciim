@@ -130,16 +130,20 @@ def enumerateInventory() {
   int c = 0;
   // Artificially restrict ourselves to 5 pages of data
 
-  File tsv_file = new File('./data.tsv');
+  File tsv_file = new File('./log.tsv');
   if ( tsv_file.exists() ) {
-    tsv_file.renameTo('./data.tsv.bak');
-    tsv_file = new File('./data.tsv');
+    tsv_file.renameTo('./log.tsv.bak');
+    tsv_file = new File('./log.tsv');
   }
-  tsv_file << 'id	title	publisher	dateOfPublication	placeOfPublication	series\n'
+
+  tsv_file << 'cursor	elapsed'
+
+  String MODE='offset'
+
   while ( records_processed > 0 ) {
     println("Fetch page of data starting at ${cursor}/${offset}");
     // r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
-    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, 'offset' )
+    r = getPageOfInventoryDataSince(cursor, tsv_file, offset+1, MODE )
 
     println("Process records");
     // If mode is timestamp set this
@@ -147,9 +151,13 @@ def enumerateInventory() {
       saveJson(record)
     }
 
-    // cursor = r.maxCursor;
-    offset = r.offset
     records_processed = r?.records?.size() ?: 0
+    tsv_file << "${offset}	${r.cursor}	${r.maxCursor}	${r.totalRecords}	${records_processed}	${r.elapsed}\n"
+
+    if ( MODE=='cursor' )
+      cursor = r.maxCursor;
+
+    offset = r.offset
 
     // Don't ddos 
     Thread.sleep(3000);
@@ -180,6 +188,7 @@ def saveJson(record) {
 def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, String mode='offset') {
 
   println("getPageOfInventoryDataSince(${cursor},...${offset},${mode}");
+  long start_time = System.currentTimeMillis();
 
   def fc = this.getClient()
   Map result = [
@@ -196,17 +205,18 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
     request.headers.'X-Okapi-Token'=this.session_ctx.auth
     request.headers.'accept'='application/json'
     request.uri.query= [
-      'sortyby':'metadata.updatedDate',
-      'limit':200,
+      'limit':250,
     ]
 
     switch ( mode) {
       case 'offset':
         request.uri.query.offset = offset
-        request.uri.query.query='(metadata.updatedDate>'+cursor+')';
+        // request.uri.query.query='(metadata.updatedDate>'+cursor+') sortBy metadata.updatedDate/sort.ascending';
+        request.uri.query.query='(metadata.updatedDate>'+cursor+')'
         break;
       case 'timestamp':
-        request.uri.query.query='(metadata.updatedDate>'+cursor+'a)';
+        // request.uri.query.query='(metadata.updatedDate>'+cursor+'a)  sortby metadata.updatedDate/sort.ascending';
+        request.uri.query.query='(metadata.updatedDate>'+cursor+'a)'
         break;
     }
 
@@ -218,6 +228,7 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
       // println("OK ${body} ${fs} ${fs.getStatusCode()}");
       println("Total records: ${body.totalRecords}");
 
+      result.totalRecords = body.totalRecords
       body.instances.each { inst ->
         result.records.add(inst);
         // dumpSummary(result.records_processed++, inst)
@@ -229,6 +240,8 @@ def getPageOfInventoryDataSince(String cursor, File tsv_file, Long offset, Strin
     }
   }
 
+  result.elapsed = System.currentTimeMillis()-start_time
+  println("Elapsed: ${result.elapsed}");
   return result;
 }
 

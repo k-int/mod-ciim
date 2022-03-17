@@ -126,15 +126,23 @@ def enumerateInventory() {
 
   File tsv_file = new File('./log.tsv');
   if ( tsv_file.exists() ) {
-    tsv_file.renameTo('./log.tsv.bak');
-    tsv_file = new File('./log.tsv');
+    // tsv_file.renameTo('./log.tsv.bak');
+    // tsv_file = new File('./log.tsv');
+  }
+  else {
+    tsv_file << 'cursor	elapsed'
   }
 
-  tsv_file << 'cursor	elapsed'
   r.each { o1 ->
     r.each { o2 ->
       r.each { o3 ->
-        enumerateInventoryByQuery("${o1}${o2}${o3}", tsv_file);
+        String qry = "${o1}${o2}${o3}".toString();
+        if ( qry < '007' ) {
+          println("skipping ${qry}");
+        }
+        else {
+          enumerateInventoryByQuery("${o1}${o2}${o3}", tsv_file);
+        }
       }
     }
   }

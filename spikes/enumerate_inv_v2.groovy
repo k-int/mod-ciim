@@ -23,6 +23,8 @@ import java.security.PublicKey
 import java.security.KeyFactory
 import java.security.spec.X509EncodedKeySpec
 import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
 
 /**
  * This script depends upon a file ~/.folio/credentials set out as follows:
@@ -46,6 +48,8 @@ session_ctx=[
   refdata:[:]
 ]
 
+harvest_state=getState();
+
 // this.configure('cardinal_si');
 println("setup");
 this.configure('palci_si');
@@ -57,9 +61,46 @@ this.loadRefdata('Classns');
 this.loadRefdata('ContributorNameTypes');
 this.loadRefdata('InstanceTypes');
 println("enumerate");
-this.enumerateInventory();
+this.enumerateInventory(harvest_state);
 println("exit");
 System.exit(0);
+
+
+private Map getState() {
+  def jsonSlurper = new JsonSlurper()
+  Map result = null;
+
+  try {
+    File params_file = new File('./harvest_state.json');
+    if ( params_file.exists() ) {
+      FileReader reader = new FileReader("./harvest_state.json")
+      result = jsonSlurper.parse(reader);
+    }
+  } catch (Exception e) {
+    e.printStackTrace()
+  }
+
+  if ( result == null ) {
+    result = [:]
+  }
+
+  return result;
+}
+
+private void writeState(state) {
+  try {
+    File state_file = new File("./harvest_state.json")
+    if ( state_file.exists() ) {
+      state_file.renameTo('./harvest_state.json.bak')
+    }
+
+    state_file << JsonOutput.prettyPrint(JsonOutput.toJson(state))
+  }
+  catch ( Exception e ) {
+    e.printStackTrace();
+  }
+}
+
 
 public void configure(String cfgname) {
   this.cfgname = cfgname;
@@ -121,7 +162,7 @@ def login() {
   }
 }
 
-def enumerateInventory() {
+def enumerateInventory(state) {
   r = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ]
 
   File tsv_file = new File('./log.tsv');
@@ -130,25 +171,25 @@ def enumerateInventory() {
     // tsv_file = new File('./log.tsv');
   }
   else {
-    tsv_file << 'cursor	elapsed'
+    tsv_file << 'cursor	elapsed\n'
   }
 
   r.each { o1 ->
     r.each { o2 ->
       r.each { o3 ->
         String qry = "${o1}${o2}${o3}".toString();
-        if ( qry < '007' ) {
-          println("skipping ${qry}");
+        if ( ( qry > '007' ) && ( qry < '00b' ) ) {
+          enumerateInventoryByQuery("${o1}${o2}${o3}", tsv_file, state);
         }
         else {
-          enumerateInventoryByQuery("${o1}${o2}${o3}", tsv_file);
+          println("skipping ${qry}");
         }
       }
     }
   }
 }
 
-def enumerateInventoryByQuery(String q, File tsv_file) {
+def enumerateInventoryByQuery(String q, File tsv_file, Map state) {
 
   String cursor = '0001-01-01T00:00:00.000'
   Long offset = -1;
@@ -156,6 +197,8 @@ def enumerateInventoryByQuery(String q, File tsv_file) {
   Map r = null;
   int c = 0;
   // Artificially restrict ourselves to 5 pages of data
+  if ( state[q] == null )
+    state[q]=[ 'max_timestamp':'' ]
 
 
   String MODE='offset'
@@ -180,6 +223,10 @@ def enumerateInventoryByQuery(String q, File tsv_file) {
 
     // Don't ddos 
     Thread.sleep(3000);
+    if ( r.maxCursor > state[q].max_timestamp ) {
+      state[q].max_timestamp = r.maxCursor;
+      writeState(harvest_state);
+    }
 
     println("maxCursor:${r.maxCursor}");
   }

@@ -34,7 +34,7 @@ def dir = new File("./data");
 println("dir: ${dir}");
 int ctr=0;
 
-println("record_id\ttitle\tpublicationdate\toclcnum\tissn\tisbn\tprimaryauthor\tpublisher\tpubyear");
+println("record_id\ttitle\tpublicationdate\toclcnum\tissn\tisbn\tprimaryauthor\tpublisher\tplaceofpublication");
 
 dir.traverse(type: FILES, maxDepth: 4) { 
   def citation = jsonSlurper.parse(it)
@@ -44,15 +44,20 @@ dir.traverse(type: FILES, maxDepth: 4) {
   String issn = null
   String isbn = ( citation.identifiers.find { it.identifierTypeId=='8261054f-be78-422d-bd51-4ed9f33c3422' } )?.value
   String primaryauthor = ( citation.contributors.find { it.primary = true } )?.name
+
+  String publisher = ( citation?.publication?.size() > 0 ? citation?.publication[0].publisher : '' )
+  String placeOfPublication = ( citation?.publication?.size() > 0 ? citation?.publication[0].place : '' )
+  String dateOfPublication = ( citation?.publication?.size() > 0 ? citation?.publication[0].dateOfPublication : '' )
+
   println("${citation.id}\t"+
           "${citation.title}\t"+
-          "${citation?.publication?.publicationDate?:''}\t"+
+          "${dateOfPublication?:''}\t"+
           "${oclc?:''}\t"+
           "${issn?:''}\t"+
           "${isbn?:''}\t"+
           "${primaryauthor?:''}"+
-          "${citation?.publication?.publisher?:''}\t"+
-          "${citation?.publication?.dateOfPublication?:''}")
+          "${publisher?:''}\t"+
+          "${placeOfPublication?:''}")
 };
 
 println("done");
